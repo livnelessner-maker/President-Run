@@ -90,8 +90,9 @@
 
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
     
-    let gameActive = false, score = 0, coins = 0, speed = 8;
+    let gameActive = false, score = 0, coins = 0, speed = 8, frameCount = 0;
     let currentSkin = 'trump';
     let unlockedSkins = ['trump'];
 
@@ -116,6 +117,234 @@
     images.obama.src = 'obama.png';
     images.protester.src = 'protester.png';
     images.coin.src = 'coin.png';
+
+    // Procedural Pixel Art Sprites and palettes as fallbacks
+    const pixelSkins = {
+        trump: {
+            grid: [
+                "     YYYYYYY     ",
+                "    YYYYYYYYYY   ",
+                "   YYYYYYYYYYYY  ",
+                "  YYYYYppppppYY  ",
+                " YYYYpppppppppyy ",
+                " YYYppppppppppyy ",
+                "  YYppppKppKppY  ",
+                "   Ypppppppppp   ",
+                "    Yppppppppp   ",
+                "     pppppppp    ",
+                "    ddddwrrwdddd ",
+                "   dddddwrrwddddd",
+                "   dddddwrrwddddd",
+                "   dddddddddddddd",
+                "   dddddddddddddd",
+                "   dddddddddddddd",
+                "   dddddddddddddd",
+                "    dddddddddddd ",
+                "    KKKKKKKKKKKK ",
+                "    KKKKKK KKKKK ",
+                "    KKKKK   KKKK ",
+                "    KKKK     KKK ",
+                "    kkkk     kkk ",
+                "   kkkkk     kkkk"
+            ],
+            colors: {
+                'Y': '#ffb020',
+                'y': '#ffe135',
+                'p': '#ffdbac',
+                'K': '#212f3d',
+                'w': '#ffffff',
+                'r': '#e74c3c',
+                'd': '#1a365d',
+                'k': '#0a0f1d'
+            }
+        },
+        bibi: {
+            grid: [
+                "     hhhhhhh     ",
+                "    hhhhhhhhhh   ",
+                "   hhhhhhhhhhhh  ",
+                "  hhhhhhpppppYh  ",
+                " hhhhpppppppppph ",
+                " hhhppppppppppph ",
+                "  hhppppKppKpph  ",
+                "   hpppppppppp   ",
+                "    hppppppppp   ",
+                "     pppppppp    ",
+                "    DDDDwccwDDDD ",
+                "   DDDDDwccwDDDDD",
+                "   DDDDDwccwDDDDD",
+                "   DDDDDDDDDDDDdd",
+                "   DDDDDDDDDDDDdd",
+                "   DDDDDDDDDDDDdd",
+                "   DDDDDDDDDDDDdd",
+                "    DDDDDDDDDDdd ",
+                "    KKKKKKKKKKKK ",
+                "    KKKKKK KKKKK ",
+                "    KKKKK   KKKK ",
+                "    KKKK     KKK ",
+                "    kkkk     kkk ",
+                "   kkkkk     kkkk"
+            ],
+            colors: {
+                'h': '#d5dbdb',
+                'Y': '#abb2b9',
+                'p': '#ffdbac',
+                'K': '#1c2833',
+                'w': '#ffffff',
+                'c': '#3498db',
+                'D': '#1b4f72',
+                'd': '#1b4f72',
+                'k': '#0a0f1d'
+            }
+        },
+        biden: {
+            grid: [
+                "     WWWWWWW     ",
+                "    WW     WW    ",
+                "   WW  pppp WW   ",
+                "  WW  pppppp WW  ",
+                " WW ppppppppppWW ",
+                " WW ppppppppppWW ",
+                "  W ppppKppKppW  ",
+                "   pppppppppp    ",
+                "    ppppppppp    ",
+                "     pppppppp    ",
+                "    GGGGwccwGGGG ",
+                "   GGGGGwccwGGGGG",
+                "   GGGGGwccwGGGGG",
+                "   GGGGGGGGGGGGG ",
+                "   GGGGGGGGGGGGG ",
+                "   GGGGGGGGGGGGG ",
+                "   GGGGGGGGGGGGG ",
+                "    GGGGGGGGGGG  ",
+                "    KKKKKKKKKKK  ",
+                "    KKKKKK KKKK  ",
+                "    KKKKK   KKK  ",
+                "    KKKK     KK  ",
+                "    kkkk     kk  ",
+                "   kkkkk     kkk "
+            ],
+            colors: {
+                'W': '#f8f9f9',
+                'p': '#ffdbac',
+                'K': '#212f3d',
+                'w': '#ffffff',
+                'c': '#2980b9',
+                'G': '#5d6d7e',
+                'k': '#0a0f1d'
+            }
+        },
+        obama: {
+            grid: [
+                "     KKKKKKK     ",
+                "    KKKKKKKKKK   ",
+                "   KKKKKKKKKKKK  ",
+                "  KKKKKssssssKK  ",
+                " KKKKsssssssssKK ",
+                " KKKssssssssssKK ",
+                "  KKssssKssKssK  ",
+                "   Kssssssssss   ",
+                "    Ksssssssss   ",
+                "     ssssssss    ",
+                "    CCCWrrWCCC   ",
+                "   CCCCWrrWCCCC  ",
+                "   CCCCWrrWCCCC  ",
+                "   CCCCCCCCCCCC  ",
+                "   CCCCCCCCCCCC  ",
+                "   CCCCCCCCCCCC  ",
+                "   CCCCCCCCCCCC  ",
+                "    CCCCCCCCCC   ",
+                "    dddddddddd   ",
+                "    dddddd ddd   ",
+                "    ddddd   dd   ",
+                "    dddd     d   ",
+                "    kkkk     k   ",
+                "   kkkkk     kk  "
+            ],
+            colors: {
+                'K': '#111111',
+                's': '#a15c3d',
+                'W': '#ffffff',
+                'r': '#e74c3c',
+                'C': '#2c3e50',
+                'd': '#1c2833',
+                'k': '#0a0f1d'
+            }
+        }
+    };
+
+    const spriteProtester = [
+        "  MMMMMMMMMMMMM ",
+        "  M  RESIST!  M ",
+        "  M           M ",
+        "  MMMMMMMMMMMMM ",
+        "       mmm      ",
+        "       mmm      ",
+        "    KKKKKKK     ",
+        "   KKKKKKKKK    ",
+        "   KKppKppKK    ",
+        "    KpppppK     ",
+        "     ppppp      ",
+        "    rrrrrrr     ",
+        "   rrrrrrrrr    ",
+        "   rrrrrrrrr    ",
+        "   rrrrrrrrr    ",
+        "    uuuuuuu     ",
+        "    uuuu uuu    ",
+        "    uuu   uu    ",
+        "    kk     kk   ",
+        "   kkk     kkk  "
+    ];
+
+    const colorsProtester = {
+        'M': '#e5c158',
+        'm': '#966d39',
+        'p': '#ffdbac',
+        'K': '#222222',
+        'r': '#e74c3c',
+        'u': '#2980b9',
+        'k': '#111111'
+    };
+
+    const spriteCoin = [
+        "  yyyy  ",
+        " yYYYYy ",
+        "yYYYYYYy",
+        "yYYwwYYy",
+        "yYYYYYYy",
+        "yYYYYYYy",
+        " yYYYYy ",
+        "  yyyy  "
+    ];
+
+    const colorsCoin = {
+        'y': '#d4ac0d',
+        'Y': '#f1c40f',
+        'w': '#fcf3cf'
+    };
+
+    function drawPixelArt(ctx, grid, x, y, w, h, colorMap) {
+        if (!grid || grid.length === 0) return;
+        const rows = grid.length;
+        const cols = grid[0].length;
+        const pixelW = w / cols;
+        const pixelH = h / rows;
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const char = grid[r][c];
+                if (char !== ' ' && colorMap[char]) {
+                    ctx.fillStyle = colorMap[char];
+                    ctx.fillRect(
+                        Math.floor(x + c * pixelW),
+                        Math.floor(y + r * pixelH),
+                        Math.ceil(pixelW),
+                        Math.ceil(pixelH)
+                    );
+                }
+            }
+        }
+    }
 
     window.addEventListener("keydown", (e) => {
         if ((e.code === "Space" || e.code === "ArrowUp") && player.grounded && gameActive) { 
@@ -173,8 +402,13 @@
         if (activeImg.complete && activeImg.width > 0) {
             ctx.drawImage(activeImg, player.x, player.y, player.w, player.h);
         } else {
-            ctx.fillStyle = "blue"; // גיבוי זמני אם הקובץ לא בתיקייה
-            ctx.fillRect(player.x, player.y, player.w, player.h);
+            const skinArt = pixelSkins[currentSkin];
+            if (skinArt) {
+                drawPixelArt(ctx, skinArt.grid, player.x, player.y, player.w, player.h, skinArt.colors);
+            } else {
+                ctx.fillStyle = "blue";
+                ctx.fillRect(player.x, player.y, player.w, player.h);
+            }
         }
 
         // רינדור קובץ התמונה של המפגין
@@ -182,8 +416,7 @@
             if (images.protester.complete && images.protester.width > 0) {
                 ctx.drawImage(images.protester, o.x, o.y, o.w, o.h);
             } else {
-                ctx.fillStyle = "red";
-                ctx.fillRect(o.x, o.y, o.w, o.h);
+                drawPixelArt(ctx, spriteProtester, o.x, o.y, o.w, o.h, colorsProtester);
             }
         });
 
@@ -192,8 +425,11 @@
             if (images.coin.complete && images.coin.width > 0) {
                 ctx.drawImage(images.coin, c.x, c.y, c.w, c.h);
             } else {
-                ctx.fillStyle = "gold";
-                ctx.fillRect(c.x, c.y, c.w, c.h);
+                // Animate rotating gold coin using frameCount
+                const scaleX = Math.abs(Math.sin(frameCount * 0.08));
+                const targetW = c.w * scaleX;
+                const targetX = c.x + (c.w - targetW) / 2;
+                drawPixelArt(ctx, spriteCoin, targetX, c.y, targetW, c.h, colorsCoin);
             }
         });
     }
@@ -201,6 +437,7 @@
     let obstacleTimer, coinTimer;
     function gameLoop() {
         if (!gameActive) return;
+        frameCount++;
         update();
         draw();
         requestAnimationFrame(gameLoop);
